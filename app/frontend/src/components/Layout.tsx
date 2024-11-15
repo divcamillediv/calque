@@ -9,7 +9,7 @@ import { loadState, saveState } from "../redux/localStorage";
 
 type Page = "menu" | "creation" | "enduser";
 type Mode = "view" | "edit";
-type Tool = "select" | "node" | "edge" | "pan";
+type Tool = "select" | "node" | "edge" | "pan" | "abstract";
 
 const pageToPathMap: Record<Page, string> = {
   menu: "/",
@@ -126,7 +126,7 @@ const Layout = () => {
 
   return (
     <AppContext.Provider
-      value={{ page, setPage, mode, setMode, tool, setTool }}
+      value={{page, setPage, mode, setMode, tool, setTool }}
     >
       <GraphContext.Provider
         value={{

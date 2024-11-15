@@ -1,5 +1,6 @@
 import { GraphHandler } from "../components/Layout";
 import { GraphState } from "./graph";
+import { v4 as uuidv4 } from 'uuid';
 
 interface NodeState {
   id: string;
@@ -11,6 +12,8 @@ interface NodeState {
   stroke: string;
   strokeWidth: number;
   description: string;
+  isGroup?: boolean;
+  groupId?: string;
 }
 
 function getNode(graph: GraphState, nodeId: string): NodeState | null {
@@ -27,7 +30,7 @@ function getNode(graph: GraphState, nodeId: string): NodeState | null {
 function insertNode(handler: GraphHandler, x: number, y: number, layerID: number): NodeState {
   const { lastEditedNode } = handler;
     const node: NodeState = {
-    id: `${layerID}_${handler.graph.autoIncrement}`,
+    id:uuidv4(),
     name: `node-${handler.graph.autoIncrement}`,
     x,
     y,

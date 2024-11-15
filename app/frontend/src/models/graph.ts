@@ -8,6 +8,17 @@ interface GraphState {
   nodes: NodeState[];
   edges: EdgeState[];
   images: ImageState[];
+  groups: GroupNode[];
+}
+
+export interface GroupNode {
+  id: string;
+  name: string;
+  sourceLayerId: number;
+  targetLayerId: number;
+  nodeIds: string[];
+  x: number;
+  y: number;
 }
 
 /* LIGNES
@@ -34,7 +45,8 @@ const emptyGraph = {
   autoIncrement: 0,
   nodes: [],
   edges: [],
-  images: []
+  images: [],
+  groups: [],
 };
 
 const currentGraph = loadState()

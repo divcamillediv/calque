@@ -4,11 +4,11 @@ import { Tool, AppContext } from '../Layout';
 
 //icons
 import { VscCircleLargeFilled} from "react-icons/vsc";
-//import { FaHandPaper } from "react-icons/fa";
 import Edge from "../../assets/Edge.asset";
 import { RiCursorFill } from "react-icons/ri";
 //General components
 import {NbCompDrop} from './Navbar';
+import {FaHandPaper} from "react-icons/fa";
 
 type Icon = React.FC<{className: string}>
 
@@ -16,6 +16,7 @@ const tools: ToolIconProps[] = [
   {name: 'select', icon: RiCursorFill},
   {name: 'node', icon: VscCircleLargeFilled},
   {name: 'edge', icon: Edge},
+  {name: 'abstract', icon: FaHandPaper},
   //{name: 'pan', icon: FaHandPaper},
 ];
 

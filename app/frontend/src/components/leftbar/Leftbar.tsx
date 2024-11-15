@@ -67,11 +67,12 @@ const LbGroupElements: FC<LbGroupElementsProps> = ({ title, icon, children }) =>
 
 const Leftbar: FC = () => {
   const { mode } = useContext(AppContext)
-  const sections = [
-    { title: "Map Floors", icon: MdLayers, items: ["Map Floors will be implemented in an upcoming version"] },
-    { title: "Line Templates", icon: LineIcon, items: ["Line Design Templates will be implemented in an upcoming version"] },
-    { title: "Tags", icon: BiSolidPurchaseTag, items: ["Tags will be implemented in an upcoming version"] }
-  ];
+  const sections: any[] = [];
+  // const sections = [
+  //   { title: "Map Floors", icon: MdLayers, items: ["Map Floors will be implemented in an upcoming version"] },
+  //   { title: "Line Templates", icon: LineIcon, items: ["Line Design Templates will be implemented in an upcoming version"] },
+  //   { title: "Tags", icon: BiSolidPurchaseTag, items: ["Tags will be implemented in an upcoming version"] }
+  // ];
 
   return (
     <>

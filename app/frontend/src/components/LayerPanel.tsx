@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { useLayers } from "../contexts/UseLayers";
+import {handleNameChange, handleOrderChange, handleVisibilityToggle} from "./helperLayer.ts";
 
 const LayerPanel: React.FC = () => {
   const { layers, activeLayerId, setActiveLayer, addLayer, setLayers } =
@@ -14,39 +15,11 @@ const LayerPanel: React.FC = () => {
     setLayers((prevLayers) =>
       prevLayers.map((layer) => ({
         ...layer,
-        opacity: layer.id === activeLayerId ? 1 : 1 - layer.order * 0.1, // Adjust opacity based on active layer
+        opacity: layer.id  === activeLayerId ? 1 :  (layer.order) /(prevLayers.length +1), // Adjust opacity based on active layer
       })),
     );
+    console.log(layers)
   }, [activeLayerId]);
-
-  const handleOrderChange = (id: number, newOrder: number) => {
-    if (layers.some((layer) => layer.order === newOrder && layer.id !== id)) {
-      setError(`Order ${newOrder} is already taken.`);
-      return;
-    }
-    setError(null);
-    setLayers((prevLayers) =>
-      prevLayers.map((layer) =>
-        layer.id === id ? { ...layer, order: newOrder } : layer,
-      ),
-    );
-  };
-
-  const handleVisibilityToggle = (id: number) => {
-    setLayers((prevLayers) =>
-      prevLayers.map((layer) =>
-        layer.id === id ? { ...layer, visible: !layer.visible } : layer,
-      ),
-    );
-  };
-
-  const handleNameChange = (id: number, newName: string) => {
-    setLayers((prevLayers) =>
-      prevLayers.map((layer) =>
-        layer.id === id ? { ...layer, name: newName } : layer,
-      ),
-    );
-  };
 
   const handleLayerClick = (id: number) => {
     setActiveLayer(id);
@@ -99,8 +72,8 @@ const LayerPanel: React.FC = () => {
     if (canvas) {
       const maxOrder = Math.max(...layers.map((layer) => layer.order));
       const activeLayer = layers.find((layer) => layer.id === activeLayerId);
-      const opacity = activeLayer ? 1 : 1 - maxOrder / 10; // need to know if i take 10 or not
-      canvas.style.opacity = `${opacity}`;
+      // const opacity = activeLayer ? 1 : 1 - maxOrder / 10; // need to know if i take 10 or not
+      // canvas.style.opacity = `${opacity}`;
     }
   }, [layers, activeLayerId]);
 
@@ -140,7 +113,7 @@ const LayerPanel: React.FC = () => {
                   <input
                     type="text"
                     value={layer.name}
-                    onChange={(e) => handleNameChange(layer.id, e.target.value)}
+                    onChange={(e) => handleNameChange(setLayers)(layer.id, e.target.value)}
                   />
                 </p>
                 <p>
@@ -149,12 +122,12 @@ const LayerPanel: React.FC = () => {
                     type="number"
                     value={layer.order}
                     onChange={(e) =>
-                      handleOrderChange(layer.id, parseInt(e.target.value, 10))
+                      handleOrderChange(layers, setLayers, setError)(layer.id, parseInt(e.target.value, 10))
                     }
                   />
                 </p>
                 <p>
-                  <button onClick={() => handleVisibilityToggle(layer.id)}>
+                  <button onClick={() => handleVisibilityToggle(setLayers)(layer.id)}>
                     {layer.visible ? "Hide" : "Show"}
                   </button>
                 </p>
