@@ -1,67 +1,172 @@
-// UseAbstraction.tsx
-
-import React, { createContext, useState, ReactNode } from "react";
+import React, { createContext, useState, ReactNode, useContext } from "react";
+import { useLayers } from "../contexts/UseLayers.tsx";
+import { groupNodes } from "../models/abstraction.ts";
+import { GraphContext, SelectedEntityContext } from "../components/Layout.tsx";
 
 interface AbstractionContextProps {
-    isAbstractionActive: boolean;
-    initiatingNodeId: string | null;
-    selectedNodeIds: string[];
-    targetLayerId: number | null;
-    startAbstraction: (initiatingNodeId: string, selectedNodeIds: string[]) => void;
-    cancelAbstraction: () => void;
-    confirmAbstraction: (targetLayerId: number) => void;
-    setSelectedNodeIds: React.Dispatch<React.SetStateAction<string[]>>;
+  isAbstractionActive: boolean;
+  abstractionSelectionOpen: boolean;
+  initiatingNodeId: string | null;
+  startAbstraction: (initiatingNodeId: string) => void;
+  cancelAbstraction: () => void;
+  confirmAbstraction: (
+    selectedNodeIds: string[],
+    targetLayerId: string,
+  ) => void;
+  setAbstractionSelectionOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const AbstractionContext = createContext<AbstractionContextProps>({
-    isAbstractionActive: false,
-    initiatingNodeId: null,
-    selectedNodeIds: [],
-    targetLayerId: null,
-    startAbstraction: () => {},
-    cancelAbstraction: () => {},
-    confirmAbstraction: () => {},
-    setSelectedNodeIds: () => {},
+  isAbstractionActive: false,
+  abstractionSelectionOpen: false,
+  initiatingNodeId: null,
+  startAbstraction: () => {},
+  cancelAbstraction: () => {},
+  confirmAbstraction: () => {},
+  setAbstractionSelectionOpen: () => {},
 });
 
-export const UseAbstraction: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [isAbstractionActive, setIsAbstractionActive] = useState(false);
-    const [initiatingNodeId, setInitiatingNodeId] = useState<string | null>(null);
-    const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
-    const [targetLayerId, setTargetLayerId] = useState<number | null>(null);
+export const UseAbstraction: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [abstractionSelectionOpen, setAbstractionSelectionOpen] =
+    useState(false);
+  const [initiatingNodeId, setInitiatingNodeId] = useState<string | null>(null);
 
-    const startAbstraction = (nodeId: string, nodesToGroup: string[]) => {
-        setInitiatingNodeId(nodeId);
-        setSelectedNodeIds(nodesToGroup);
-        setIsAbstractionActive(true);
-    };
+  const { layers, setLayers, activeLayerId } = useLayers();
+  const graphHandler = useContext(GraphContext);
+  const { setSelectedEntity } = useContext(SelectedEntityContext);
 
-    const cancelAbstraction = () => {
-        setInitiatingNodeId(null);
-        setSelectedNodeIds([]);
-        setTargetLayerId(null);
-        setIsAbstractionActive(false);
-    };
+  const startAbstraction = (nodeId: string) => {
+    setInitiatingNodeId(nodeId);
+    setAbstractionSelectionOpen(true);
+  };
 
-    const confirmAbstraction = (layerId: number) => {
-        setTargetLayerId(layerId);
-        // the actual confirmation logic is handled in Rightbar
-    };
+  const cancelAbstraction = () => {
+    setInitiatingNodeId(null);
+    setAbstractionSelectionOpen(false);
+  };
 
-    return (
-        <AbstractionContext.Provider
-            value={{
-                isAbstractionActive,
-                initiatingNodeId,
-                selectedNodeIds,
-                targetLayerId,
-                startAbstraction,
-                cancelAbstraction,
-                confirmAbstraction,
-                setSelectedNodeIds,
-            }}
-        >
-            {children}
-        </AbstractionContext.Provider>
+  const confirmAbstraction = (
+    selectedNodeIds: string[],
+    targetLayerId: string,
+  ) => {
+    const completeSelectedNodeIds =
+      initiatingNodeId && !selectedNodeIds.includes(initiatingNodeId)
+        ? [...selectedNodeIds, initiatingNodeId]
+        : selectedNodeIds;
+
+    const targetLayer = layers.find((layer) => layer.id === targetLayerId);
+    const activeLayer = layers.find((layer) => layer.id === activeLayerId);
+
+    if (!targetLayer || !activeLayer) {
+      console.error("Layer not found");
+      return;
+    }
+
+    const isInitiatingNodeSelected =
+      initiatingNodeId && completeSelectedNodeIds.includes(initiatingNodeId);
+
+    const groupResult = groupNodes(
+      completeSelectedNodeIds,
+      targetLayer,
+      activeLayer,
+      graphHandler.graph,
+      "#0000FF",
+      "#FFFFFF",
+      20,
+      30,
+      isInitiatingNodeSelected ? initiatingNodeId : undefined,
     );
+
+    if (!groupResult) {
+      console.error("Group creation failed");
+      return;
+    }
+
+    const { newGroupNode, allNodesToGroup } = groupResult;
+
+    const updatedTargetNodes = targetLayer.canvasState.nodes.map((node) => {
+      if (
+        completeSelectedNodeIds.includes(node.id) &&
+        node.id !== initiatingNodeId
+      ) {
+        return { ...node, groupId: newGroupNode.id };
+      }
+      return node;
+    });
+
+    // If using the initiating node as the group, remove it from the active layer
+    let updatedActiveLayer = activeLayer;
+    if (isInitiatingNodeSelected) {
+      updatedActiveLayer = {
+        ...activeLayer,
+        canvasState: {
+          ...activeLayer.canvasState,
+          nodes: activeLayer.canvasState.nodes.filter(
+            (node) => node.id !== initiatingNodeId,
+          ),
+          groups:
+            activeLayer.canvasState.groups?.filter(
+              (group) => group.id !== initiatingNodeId,
+            ) || [],
+        },
+      };
+    }
+
+    const updatedLayers = layers.map((layer) => {
+      if (layer.id === targetLayer.id) {
+        return {
+          ...layer,
+          canvasState: {
+            ...layer.canvasState,
+            nodes: [
+              // Remove grouped nodes from target layer
+              ...layer.canvasState.nodes.filter(
+                (node) =>
+                  !completeSelectedNodeIds.includes(node.id) ||
+                  node.id === initiatingNodeId,
+              ),
+              // Add the new group node
+              newGroupNode,
+              // Add updated nodes with groupId
+              ...updatedTargetNodes.filter(
+                (node) =>
+                  completeSelectedNodeIds.includes(node.id) &&
+                  node.id !== initiatingNodeId,
+              ),
+            ],
+            groups: [...(layer.canvasState.groups || []), newGroupNode],
+          },
+        };
+      }
+      if (layer.id === activeLayer.id && isInitiatingNodeSelected) {
+        return updatedActiveLayer;
+      }
+      return layer;
+    });
+
+    setLayers(updatedLayers);
+    setSelectedEntity({ kind: "node", id: newGroupNode.id });
+    setAbstractionSelectionOpen(false);
+    setInitiatingNodeId(null);
+  };
+
+  return (
+    <AbstractionContext.Provider
+      value={{
+        isAbstractionActive: abstractionSelectionOpen,
+        abstractionSelectionOpen,
+        initiatingNodeId,
+        startAbstraction,
+        cancelAbstraction,
+        confirmAbstraction,
+        setAbstractionSelectionOpen,
+      }}
+    >
+      {children}
+    </AbstractionContext.Provider>
+  );
 };
+
+export default UseAbstraction;

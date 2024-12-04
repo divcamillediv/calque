@@ -5,7 +5,8 @@ import * as d3 from "d3";
 import { BaseType } from "d3";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import { useImportSVG } from '../hooks/useImportSVG'; // Import the custom hook
+import { useImportSVG } from '../hooks/useImportSVG';
+import {useLayers} from "../contexts/UseLayers.tsx";
 
 /**
  * Essayez d'importer tresorcarte.calque qui se trouve dans /public
@@ -22,8 +23,9 @@ interface UserNavBarProps {
     setSelectedEntity: React.Dispatch<React.SetStateAction<d3.BaseType | null>>;
   }
 
-const UserNavBar: React.FC<UserNavBarProps> = ({ setSelectedEntity }) => {
-    const { fileInputRef, handleImportClick, handleFileChange } = useImportSVG(setSelectedEntity);
+const UserNavBar: React.FC<UserNavBarProps> = (  ) => {
+    const { setLayers } = useLayers();
+    const { fileInputRef, handleImportClick, handleFileChange } = useImportSVG(setLayers);
   
     return (
       <div className="fixed w-screen z-50">
@@ -48,7 +50,7 @@ const UserNavBar: React.FC<UserNavBarProps> = ({ setSelectedEntity }) => {
             </button>
             <input
               type="file"
-              accept=".svg"
+              accept=".calque"
               ref={fileInputRef}
               style={{ display: 'none' }}
               onChange={handleFileChange}

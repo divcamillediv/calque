@@ -5,7 +5,7 @@ import {handleNameChange, handleOrderChange, handleVisibilityToggle} from "./hel
 const LayerPanel: React.FC = () => {
   const { layers, activeLayerId, setActiveLayer, addLayer, setLayers } =
     useLayers();
-  const [expandedLayerIds, setExpandedLayerIds] = useState<number[]>([]);
+  const [expandedLayerIds, setExpandedLayerIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 200, y: 100 });
@@ -21,7 +21,7 @@ const LayerPanel: React.FC = () => {
     console.log(layers)
   }, [activeLayerId]);
 
-  const handleLayerClick = (id: number) => {
+  const handleLayerClick = (id: string) => {
     setActiveLayer(id);
     setExpandedLayerIds(
       expandedLayerIds.includes(id)
@@ -32,9 +32,7 @@ const LayerPanel: React.FC = () => {
 
   const handleAddLayer = () => {
     addLayer();
-    const newId = layers.length + 1;
-    setActiveLayer(newId);
-    setExpandedLayerIds([newId]);
+    //setExpandedLayerIds([newId]);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {

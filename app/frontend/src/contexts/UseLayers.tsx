@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 import { GroupNode } from "../models/graph.ts";
 
 interface CanvasState {
@@ -10,7 +10,7 @@ interface CanvasState {
 }
 
 interface Layer {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   order: number;
@@ -21,9 +21,9 @@ interface Layer {
 
 interface LayerContextType {
   layers: Layer[];
-  activeLayerId: number;
+  activeLayerId: string;
   addLayer: () => void;
-  setActiveLayer: (id: number) => void;
+  setActiveLayer: (id: string) => void;
   updateCanvasState: (state: CanvasState) => void;
   setLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
 }
@@ -33,7 +33,7 @@ const LayerContext = createContext<LayerContextType | undefined>(undefined);
 export const UseLayers = (props: { children: React.ReactNode }) => {
   const [layers, setLayers] = useState<Layer[]>([
     {
-      id: 1,
+      id: "1",
       name: "Layer 1",
       description: "",
       order: 1,
@@ -48,9 +48,9 @@ export const UseLayers = (props: { children: React.ReactNode }) => {
       },
     },
   ]);
-  const [activeLayerId, setActiveLayerId] = useState(1);
+  const [activeLayerId, setActiveLayerId] = useState("1");
 
-  const updateLayerOpacities = (layers: Layer[], activeLayerId: number): Layer[] => {
+  const updateLayerOpacities = (layers: Layer[], activeLayerId: string): Layer[] => {
     const activeLayer = layers.find((layer) => layer.id === activeLayerId);
     if (!activeLayer) return layers;
 
@@ -66,7 +66,7 @@ export const UseLayers = (props: { children: React.ReactNode }) => {
         console.log(`Layer ${layer.id} opacity set to ${newOpacity}`);
         return { ...layer, opacity: newOpacity };
       } else {
-        // Layers below the active layer: maintain full opacity or define another logic
+        // Layers below the active layer: maintain full opacity
         return { ...layer, opacity: 1 };
       }
     });
@@ -75,7 +75,7 @@ export const UseLayers = (props: { children: React.ReactNode }) => {
   const addLayer = () => {
     setLayers((prevLayers) => {
       const newOrder = Math.max(...prevLayers.map((l) => l.order)) + 1;
-      const newId = prevLayers.length + 1;
+      const newId = (prevLayers.length + 1).toString();
       const newLayer: Layer = {
         id: newId,
         name: `Layer ${newId}`,
@@ -97,7 +97,7 @@ export const UseLayers = (props: { children: React.ReactNode }) => {
     });
   };
 
-  const setActiveLayer = (id: number) => {
+  const setActiveLayer = (id: string) => {
     setActiveLayerId(id);
     setLayers((prevLayers) => updateLayerOpacities(prevLayers, id));
   };

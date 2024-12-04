@@ -14,8 +14,8 @@ interface GraphState {
 export interface GroupNode {
   id: string;
   name: string;
-  sourceLayerId: number;
-  targetLayerId: number;
+  sourceLayerId: string;
+  targetLayerId: string;
   nodeIds: string[];
   x: number;
   y: number;

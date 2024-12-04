@@ -27,10 +27,15 @@ function getNode(graph: GraphState, nodeId: string): NodeState | null {
   return node;
 }
 
-function insertNode(handler: GraphHandler, x: number, y: number, layerID: number): NodeState {
+function insertNode(
+  handler: GraphHandler,
+  x: number,
+  y: number,
+  layerID: string,
+): NodeState {
   const { lastEditedNode } = handler;
-    const node: NodeState = {
-    id:uuidv4(),
+  const node: NodeState = {
+    id: uuidv4(),
     name: `node-${handler.graph.autoIncrement}`,
     x,
     y,
@@ -74,5 +79,9 @@ function deleteNode(handler: GraphHandler, nodeId: string) {
   handler.setGraph(graph);
 }
 
+const isNodeEligibleForEdge = (node: NodeState): boolean => {
+  return node.isGroup || !node.groupId;
+};
+
 export type { NodeState };
-export { getNode, insertNode, updateNode, deleteNode };
+export { getNode, insertNode, updateNode, deleteNode, isNodeEligibleForEdge };

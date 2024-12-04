@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { AppContext, GraphContext, SelectedEntityContext } from "../Layout";
 import { CanvasContext } from "../Canvas";
-import { NodeState, deleteNode } from "../../models/node";
+import {NodeState, deleteNode, isNodeEligibleForEdge} from "../../models/node";
 import { insertEdge } from "../../models/edge";
 
 interface NodeProps {
@@ -11,7 +11,12 @@ interface NodeProps {
   onInitiateAbstraction: (nodeId: string) => void;
 }
 
-const Node = ({ node, isSelected, toggleGroupExpansion, onInitiateAbstraction }: NodeProps) => {
+const Node = ({
+  node,
+  isSelected,
+  toggleGroupExpansion,
+  onInitiateAbstraction,
+}: NodeProps) => {
   const { mode, tool } = useContext(AppContext);
   const graphHandler = useContext(GraphContext);
   const { selectedEntity, setSelectedEntity } = useContext(
@@ -54,22 +59,20 @@ const Node = ({ node, isSelected, toggleGroupExpansion, onInitiateAbstraction }:
   };
 
   const handleMouseDown = () => {
-    if (mode === "edit" && (tool === "select")) {
+    if (mode === "edit" && tool === "select") {
       if (node.isGroup) {
         setAction({ kind: "dragGroup", groupId: node.id });
-      } else{
-      setAction({ kind: "drag", nodeId: node.id });
+      } else {
+        setAction({ kind: "drag", nodeId: node.id });
       }
       setSelectedEntity({ kind: "node", id: node.id });
     }
 
     if (mode === "edit" && tool === "abstract") {
-
-        setAction({ kind: "drag", nodeId: node.id });
+      setAction({ kind: "drag", nodeId: node.id });
 
       setSelectedEntity({ kind: "node", id: node.id });
     }
-
   };
 
   // DELETE NODE
@@ -90,9 +93,12 @@ const Node = ({ node, isSelected, toggleGroupExpansion, onInitiateAbstraction }:
     };
   }, [isSelected, node.id, graphHandler, setSelectedEntity, setAction]);
 
+  const eligibleForEdge = isNodeEligibleForEdge(node);
+
   return (
     <g>
       <circle
+        data-node-id={node.id}
         stroke={node.stroke}
         strokeWidth={node.strokeWidth}
         cx={node.x}
@@ -107,6 +113,7 @@ const Node = ({ node, isSelected, toggleGroupExpansion, onInitiateAbstraction }:
       {mode === "edit" &&
         (isSelected ? (
           <circle
+            data-node-id={node.id}
             stroke="#0000FF"
             fill="#FFFFFF"
             fillOpacity={0}
@@ -117,6 +124,10 @@ const Node = ({ node, isSelected, toggleGroupExpansion, onInitiateAbstraction }:
             opacity="0.3"
             onClick={handleClick}
             onMouseDown={handleMouseDown}
+            style={{
+              cursor: eligibleForEdge ? "crosshair" : "not-allowed",
+              opacity: eligibleForEdge ? 1 : 0.5,
+            }}
           />
         ) : (
           <g />

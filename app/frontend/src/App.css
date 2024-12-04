@@ -145,12 +145,14 @@
     list-style-type: none;
     padding: 0;
     margin-top: 18px;
+    display: flex;
+    flex-direction: column;
 }
 
 .active-layer-data-list-item {
-    margin-bottom: 8px;
-    padding: 8px;
-    background-color: #f1f1f1;
+    margin: 8px 0px;
+    width: 100%;
+    background-color: white;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
@@ -208,4 +210,13 @@ textarea{
 
 .modal button:hover {
     opacity: 0.9;
+}
+
+.imp-exp-buttons-group{
+    display: flex;
+    flex-direction: row;
+}
+
+.imp-exp-buttons{
+    margin-right: 15px;
 }

@@ -2,6 +2,7 @@ import { GraphHandler } from "../components/Layout";
 import { GraphState } from "./graph";
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid';
+import {isNodeEligibleForEdge} from "./node.ts";
 
 interface EdgeState {
     id: string;
@@ -32,6 +33,11 @@ function insertEdge(handler: GraphHandler, node1id: string, node2id: string) {
   if (!sourceNode || !targetNode) {
     console.error(`Cannot create edge. Missing node(s): ${!sourceNode ? node1id : ''} ${!targetNode ? node2id : ''}`);
     return; // Prevent edge creation if nodes are missing
+  }
+
+  if (!isNodeEligibleForEdge(sourceNode) || !isNodeEligibleForEdge(targetNode)) {
+    console.error("Cannot create edge involving nodes inside groups.");
+    return null;
   }
 
   const edge: EdgeState = {
