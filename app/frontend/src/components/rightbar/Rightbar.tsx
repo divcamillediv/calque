@@ -168,7 +168,7 @@ const RBTutorials: React.FC = () => {
                     activeLayer.canvasState.images.map((image, index) => (
                       <li className="active-layer-data-list-item" key={index}>
                         <p>
-                          <strong>ID:</strong> {image.id}
+                          <strong>Name:</strong> {image.name}
                         </p>
                         <p>
                           <strong>Source:</strong> {image.src}

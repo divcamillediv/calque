@@ -128,6 +128,7 @@ const Node = ({
               cursor: eligibleForEdge ? "crosshair" : "not-allowed",
               opacity: eligibleForEdge ? 1 : 0.5,
             }}
+            pointerEvents="none"
           />
         ) : (
           <g />

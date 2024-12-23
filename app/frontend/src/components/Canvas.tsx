@@ -366,6 +366,11 @@ const Canvas = () => {
 
       // check if there is elements within the selection
       const elementsInSelection = getElementsInActiveLayer(selectionRect);
+      const selectedNodeIds = new Set(
+          elementsInSelection
+              .filter((el) => el.kind === "drag")
+              .map((el) => el.nodeId)
+      );
       if (elementsInSelection.length > 0) {
         setSelectedElements(elementsInSelection);
         setIsRectActive(true);
@@ -593,8 +598,9 @@ const Canvas = () => {
     if (selectedNodeIds.length === 0) return;
 
     const targetLayer = layers.find(
-      (layer) => layer.id === selectedTargetLayerId,
+        (layer) => layer.id === selectedTargetLayerId,
     );
+
     console.log("YOOOO "+ selectedTargetLayerId)
     if (!targetLayer) {
       console.error("Target layer not found");

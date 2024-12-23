@@ -71,6 +71,20 @@ const AbstractionSelection: React.FC<AbstractionSelectionProps> = ({
       uniqueNodeIds,
       selectedLayerId,
     });
+    const connectedPairs = new Set<string>();
+    targetLayer.canvasState.edges.forEach((edge) => {
+      if (
+          selectedNodeIds.includes(edge.node1id) &&
+          selectedNodeIds.includes(edge.node2id)
+      ) {
+        connectedPairs.add(`${edge.node1id}-${edge.node2id}`);
+      }
+    });
+    console.log("HERE" + connectedPairs)
+    if (connectedPairs.size > 0) {
+      alert("Cannot group nodes that are connected by edges.");
+      return;
+    }
     if (selectedLayerId !== null && uniqueNodeIds.length > 0) {
       onConfirm(uniqueNodeIds, selectedLayerId);
       onClose();
