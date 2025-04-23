@@ -1,7 +1,7 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
+import React, {createContext, useContext, useState} from "react";
 import { GroupNode } from "../models/graph.ts";
 
-interface CanvasState {
+export interface CanvasState {
   images: any[];
   nodes: any[];
   edges: any[];
@@ -9,7 +9,7 @@ interface CanvasState {
   groups: GroupNode[];
 }
 
-interface Layer {
+export interface Layer {
   id: string;
   name: string;
   description?: string;

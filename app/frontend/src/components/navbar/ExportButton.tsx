@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import { TiExport } from "react-icons/ti";
-import {GraphContext, SelectedEntityContext} from "../Layout";
+import {SelectedEntityContext} from "../Layout";
 import { useLayers } from "../../contexts/UseLayers.tsx";
 import { useImportSVG } from "../../hooks/useImportSVG.tsx";
 
-const ExportButton = ({ layers }) => {
+const ExportButton = ({ layers }: { layers: any }) => {
   const { setSelectedEntity } = useContext(SelectedEntityContext);
 
   const exportMap = () => {
